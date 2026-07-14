@@ -1,0 +1,125 @@
+{% extends "storeapp/base_panel.html" %}
+
+{% block title %}{{ title }} — Satıcı Paneli{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="breadcrumb" style="margin-bottom: 12px;">
+        <a href="{% url 'storeapp:panel_dashboard' %}">Panelim</a> &rsaquo; {{ title }}
+    </div>
+
+    <h2 class="page-title">{{ title }}</h2>
+
+    <div class="panel-card form-card-layout">
+        <div class="form-main">
+            <form method="post" id="productForm">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group {% if field.name == 'is_active' %}form-check-group{% endif %}">
+                    {% if field.name != 'is_active' %}
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="form-help-text">{{ field.help_text }}</small>
+                        {% endif %}
+                    {% else %}
+                        <div class="form-check">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}" class="check-label">{{ field.label }}</label>
+                        </div>
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div class="form-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">İlanı Kaydet</button>
+                    <a href="{% url 'storeapp:panel_dashboard' %}" class="btn btn-outline">İptal</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Canlı Resim Önizleme (Sidebar) -->
+        <div class="form-preview-sidebar">
+            <div class="preview-box-title">İlan Önizleme</div>
+            <div class="preview-card">
+                <div class="preview-image-container">
+                    <img id="liveImgPreview" src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=500&auto=format&fit=crop&q=60" alt="Resim Önizleme">
+                    <div class="preview-badge" id="liveCategoryBadge">Kategori</div>
+                </div>
+                <div class="preview-details">
+                    <h4 id="liveTitlePreview">İlan Başlığı Buraya Gelecek</h4>
+                    <div class="preview-meta">
+                        <span id="liveCityPreview">📍 Şehir</span>
+                        <span id="liveStockPreview">📦 Stok: 1</span>
+                    </div>
+                    <div class="preview-price-row">
+                        <div class="preview-price"><span id="livePricePreview">0</span> <span class="currency">TL</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const titleInput = document.querySelector('input[name="name"]');
+        const priceInput = document.querySelector('input[name="price"]');
+        const citySelect = document.querySelector('select[name="city"]');
+        const stockInput = document.querySelector('input[name="stock"]');
+        const imgInput = document.querySelector('input[name="image_url"]');
+        const catSelect = document.querySelector('select[name="category"]');
+
+        const titlePrev = document.getElementById("liveTitlePreview");
+        const pricePrev = document.getElementById("livePricePreview");
+        const cityPrev = document.getElementById("liveCityPreview");
+        const stockPrev = document.getElementById("liveStockPreview");
+        const imgPrev = document.getElementById("liveImgPreview");
+        const catBadge = document.getElementById("liveCategoryBadge");
+
+        const defaultImg = "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=500&auto=format&fit=crop&q=60";
+
+        function updatePreview() {
+            if (titleInput && titlePrev) {
+                titlePrev.textContent = titleInput.value.trim() || "İlan Başlığı Buraya Gelecek";
+            }
+            if (priceInput && pricePrev) {
+                const price = parseFloat(priceInput.value);
+                pricePrev.textContent = isNaN(price) ? "0" : price.toLocaleString('tr-TR');
+            }
+            if (citySelect && cityPrev) {
+                const selectedOpt = citySelect.options[citySelect.selectedIndex];
+                cityPrev.textContent = "📍 " + (selectedOpt ? selectedOpt.text : "Şehir");
+            }
+            if (stockInput && stockPrev) {
+                stockPrev.textContent = "📦 Stok: " + (stockInput.value || "1");
+            }
+            if (imgInput && imgPrev) {
+                imgPrev.src = imgInput.value.trim() || defaultImg;
+            }
+            if (catSelect && catBadge) {
+                const selectedOpt = catSelect.options[catSelect.selectedIndex];
+                catBadge.textContent = selectedOpt && selectedOpt.value ? selectedOpt.text : "Kategori";
+            }
+        }
+
+        const inputs = [titleInput, priceInput, citySelect, stockInput, imgInput, catSelect];
+        inputs.forEach(input => {
+            if (input) {
+                input.addEventListener("input", updatePreview);
+                input.addEventListener("change", updatePreview);
+            }
+        });
+
+        // Initial call
+        updatePreview();
+    });
+</script>
+{% endblock %}
+{% endblock %}

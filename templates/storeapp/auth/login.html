@@ -1,0 +1,48 @@
+{% extends "storeapp/base_public.html" %}
+
+{% block title %}Giriş Yap{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card-premium">
+        <div class="auth-card-glow"></div>
+        <div class="auth-card-inner">
+            <div class="auth-header">
+                <h2>Hoş Geldiniz</h2>
+                <p>Hesabınıza giriş yapın, ilanlarınızı kolayca yönetin.</p>
+            </div>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="auth-input-wrapper">
+                        {% if field.name == 'username' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        {% endif %}
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}
+                        <div class="form-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                <div class="form-errors non-field-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary btn-block btn-auth-submit">Giriş Yap</button>
+            </form>
+
+            <div class="auth-footer">
+                Henüz hesabınız yok mu? <a href="{% url 'storeapp:register' %}">Yeni Üye Ol</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

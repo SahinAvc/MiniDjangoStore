@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}miniStore{% endblock %} — E-Ticaret Platformu</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Style -->
+    <link rel="stylesheet" href="{% static 'storeapp/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="public-body">
+    <!-- Navbar -->
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="{% url 'storeapp:home' %}" class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+                <span>mini</span>Store
+            </a>
+
+            <!-- Gelişmiş Arama Barı -->
+            <form class="header-search" action="{% url 'storeapp:home' %}" method="get">
+                {% if filters.kategori %}<input type="hidden" name="kategori" value="{{ filters.kategori }}">{% endif %}
+                {% if filters.sehir %}<input type="hidden" name="sehir" value="{{ filters.sehir }}">{% endif %}
+                {% if filters.min_fiyat %}<input type="hidden" name="min_fiyat" value="{{ filters.min_fiyat }}">{% endif %}
+                {% if filters.max_fiyat %}<input type="hidden" name="max_fiyat" value="{{ filters.max_fiyat }}">{% endif %}
+                <div class="search-input-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" name="q" placeholder="Ürün adı, açıklama veya marka ara..." value="{{ filters.q|default:'' }}">
+                </div>
+                <button type="submit">Ara</button>
+            </form>
+
+            <div class="header-actions">
+                {% if user.is_authenticated %}
+                    <div class="user-menu-wrapper">
+                        <span class="user-greeting">Merhaba, <strong>{{ user.username }}</strong></span>
+                        <a href="{% url 'storeapp:panel_dashboard' %}" class="btn btn-secondary btn-dashboard-link">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                            Panelim
+                        </a>
+                    </div>
+                    <a href="{% url 'storeapp:panel_product_create' %}" class="btn btn-primary btn-sell">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        İlan Ver
+                    </a>
+                    <a href="{% url 'storeapp:logout' %}" class="btn btn-outline btn-logout" title="Çıkış Yap">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    </a>
+                {% else %}
+                    <a href="{% url 'storeapp:login' %}" class="btn btn-outline btn-login-nav">Giriş Yap</a>
+                    <a href="{% url 'storeapp:register' %}" class="btn btn-primary btn-register-nav">Üye Ol</a>
+                    <a href="{% url 'storeapp:login' %}?next={% url 'storeapp:panel_product_create' %}" class="btn btn-accent-gold btn-sell-mobile">
+                        <span>+ İlan Ver</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Bildirim Mesajları -->
+    {% if messages %}
+    <div class="container messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <div class="alert-content">
+                {% if message.tags == 'success' %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                {% elif message.tags == 'info' %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                {% else %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            <button class="alert-close-btn" onclick="this.parentElement.remove()">✕</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Ana İçerik -->
+    <main class="public-main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-branding">
+                <a href="{% url 'storeapp:home' %}" class="logo logo-footer">
+                    <span>mini</span>Store
+                </a>
+                <p class="footer-desc">En hızlı, en güvenli ve en gelişmiş ilan yayınlama ve alışveriş platformu.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Hızlı Erişim</h4>
+                <a href="{% url 'storeapp:home' %}">Ana Sayfa</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'storeapp:panel_dashboard' %}">Satıcı Panelim</a>
+                <a href="{% url 'storeapp:panel_product_create' %}">İlan Yayınla</a>
+                {% else %}
+                <a href="{% url 'storeapp:login' %}">Giriş Yap</a>
+                <a href="{% url 'storeapp:register' %}">Üye Ol</a>
+                {% endif %}
+            </div>
+            <div class="footer-bottom">
+                <div>&copy; 2026 miniStore. Tüm Hakları Saklıdır.</div>
+                <div class="footer-socials">
+                    <span class="social-badge">Türkiye'nin En İyi İlan Platformu</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{% static 'storeapp/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,184 @@
+{% extends "storeapp/base_public.html" %}
+
+{% block title %}Ana Sayfa{% endblock %}
+
+{% block content %}
+<!-- Hero Alanı -->
+<div class="hero-section">
+    <div class="hero-content">
+        <span class="hero-tag">Yeni Nesil Alışveriş</span>
+        <h1>Aradığın Her Şeyi Burada Bul</h1>
+        <p>Binlerce ilan arasından ihtiyacın olan ürünü en iyi fiyatla güvenle satın al.</p>
+        <div class="hero-features">
+            <div class="feature-item">
+                <span class="feature-icon">🛡️</span>
+                <span>Güvenli İlanlar</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <span>Hızlı İletişim</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">💎</span>
+                <span>Kaliteli Ürünler</span>
+            </div>
+        </div>
+    </div>
+    <div class="hero-illustration">
+        <div class="glow-sphere"></div>
+    </div>
+</div>
+
+<div class="container main-layout-container">
+    <div class="layout-with-sidebar">
+        <!-- Sidebar: Kategoriler & Filtreler -->
+        <aside class="sidebar">
+            <div class="sidebar-block">
+                <div class="sidebar-title">Kategoriler</div>
+                <ul class="category-list">
+                    <li>
+                        <a href="{% url 'storeapp:home' %}" class="{% if not filters.kategori %}active{% endif %}">
+                            <span class="cat-icon">🏠</span>
+                            <span class="cat-name">Tüm İlanlar</span>
+                        </a>
+                    </li>
+                    {% for cat in categories %}
+                    <li>
+                        <a href="?kategori={{ cat.slug }}{% if filters.q %}&q={{ filters.q }}{% endif %}{% if filters.sehir %}&sehir={{ filters.sehir }}{% endif %}{% if filters.min_fiyat %}&min_fiyat={{ filters.min_fiyat }}{% endif %}{% if filters.max_fiyat %}&max_fiyat={{ filters.max_fiyat }}{% endif %}"
+                           class="{% if filters.kategori == cat.slug %}active{% endif %}">
+                            <span class="cat-icon">{{ cat.icon|default:"📦" }}</span>
+                            <span class="cat-name">{{ cat.name }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="sidebar-block">
+                <div class="sidebar-title">Detaylı Filtrele</div>
+                <div class="filter-box">
+                    <form method="get" action="{% url 'storeapp:home' %}">
+                        {% if filters.q %}<input type="hidden" name="q" value="{{ filters.q }}">{% endif %}
+                        {% if filters.kategori %}<input type="hidden" name="kategori" value="{{ filters.kategori }}">{% endif %}
+
+                        <div class="filter-group">
+                            <label>Şehir</label>
+                            <select name="sehir">
+                                <option value="">Tüm Şehirler</option>
+                                {% for key, label in cities %}
+                                <option value="{{ key }}" {% if filters.sehir == key %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Fiyat Aralığı (₺)</label>
+                            <div class="price-range-inputs">
+                                <input type="number" name="min_fiyat" placeholder="Min" value="{{ filters.min_fiyat }}" min="0" step="1">
+                                <span class="range-divider">-</span>
+                                <input type="number" name="max_fiyat" placeholder="Max" value="{{ filters.max_fiyat }}" min="0" step="1">
+                            </div>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-primary btn-block">Filtreleri Uygula</button>
+                            <a href="{% url 'storeapp:home' %}" class="btn btn-outline btn-block text-center">Temizle</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Ana Ürün Listesi Bölümü -->
+        <section class="products-section">
+            <div class="listing-header">
+                <div class="listing-count">
+                    Toplam <strong>{{ total_count }}</strong> ilan bulundu
+                    {% if filters.q %}
+                        aranan kelime: "<em>{{ filters.q }}</em>"
+                    {% endif %}
+                </div>
+                <button id="filterToggle" class="btn btn-outline btn-sm filter-toggle-mobile-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                    Filtrele
+                </button>
+            </div>
+
+            {% if products %}
+            <div class="product-cards-grid">
+                {% for product in products %}
+                <div class="product-card" data-href="{% url 'storeapp:product_detail' product.pk %}">
+                    <div class="card-image-wrapper">
+                        <img src="{{ product.get_image_url }}" alt="{{ product.name }}" class="product-card-image" loading="lazy">
+                        {% if product.category %}
+                        <div class="category-badge-pill">{{ product.category.icon }} {{ product.category.name }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-details">
+                        <h3 class="product-card-title">
+                            <a href="{% url 'storeapp:product_detail' product.pk %}">{{ product.name }}</a>
+                        </h3>
+                        {% if product.description %}
+                        <p class="product-card-desc">{{ product.description|truncatewords:14 }}</p>
+                        {% endif %}
+                        <div class="product-card-meta">
+                            <span class="meta-location">📍 {{ product.get_city_display_name }}</span>
+                            <span class="meta-date">🕐 {{ product.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <div class="product-card-footer">
+                            <div class="price-box">
+                                <span class="price-value">{{ product.price|floatformat:0 }}</span>
+                                <span class="currency">TL</span>
+                            </div>
+                            <span class="stock-badge {% if product.stock > 1 %}in-stock{% else %}low-stock{% endif %}">
+                                {% if product.stock > 1 %}Stok: {{ product.stock }}{% else %}Son 1 Ürün{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">🔍</div>
+                <h3>Aradığınız kriterlere uygun ilan bulunamadı</h3>
+                <p>Farklı anahtar kelimeler seçmeyi veya filtreleri temizlemeyi deneyin.</p>
+                <a href="{% url 'storeapp:home' %}" class="btn btn-primary">Tüm İlanları Göster</a>
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Handle responsive mobile layout sidebar toggle
+        const filterToggleBtn = document.getElementById("filterToggle");
+        const sidebar = document.querySelector(".sidebar");
+        
+        if (filterToggleBtn && sidebar) {
+            filterToggleBtn.addEventListener("click", function (e) {
+                sidebar.classList.toggle("mobile-open");
+                e.stopPropagation();
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener("click", function(e) {
+                if (sidebar.classList.contains("mobile-open") && !sidebar.contains(e.target) && e.target !== filterToggleBtn) {
+                    sidebar.classList.remove("mobile-open");
+                }
+            });
+        }
+
+        // Product cards row click handling
+        document.querySelectorAll(".product-card").forEach(function (card) {
+            card.addEventListener("click", function (e) {
+                if (e.target.closest("a, button")) return;
+                window.location.href = card.dataset.href;
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "storeapp/base_public.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container detail-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{% url 'storeapp:home' %}">Ana Sayfa</a>
+        {% if product.category %}
+        &rsaquo; <a href="{% url 'storeapp:home' %}?kategori={{ product.category.slug }}">{{ product.category.name }}</a>
+        {% endif %}
+        &rsaquo; <span class="active-crumb">{{ product.name }}</span>
+    </div>
+
+    <!-- Detay Grid Yapısı -->
+    <div class="detail-grid">
+        <!-- Sol Bölüm: Görsel ve Açıklama -->
+        <div class="detail-main-col">
+            <div class="detail-gallery-card">
+                <img src="{{ product.get_image_url }}" alt="{{ product.name }}" class="detail-product-img">
+                {% if product.category %}
+                <div class="category-badge-pill detail-img-badge">{{ product.category.icon }} {{ product.category.name }}</div>
+                {% endif %}
+            </div>
+
+            <div class="detail-card description-card">
+                <h3 class="section-title">İlan Açıklaması</h3>
+                <div class="description-content">
+                    {% if product.description %}
+                    <p>{{ product.description|linebreaksbr }}</p>
+                    {% else %}
+                    <p class="no-description">Satıcı bu ilan için bir açıklama eklememiş.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Bölüm: Fiyat, Satıcı ve İşlemler -->
+        <div class="detail-sidebar-col">
+            <!-- Fiyat Kartı -->
+            <div class="detail-card price-card-premium">
+                <div class="price-header">Fiyat</div>
+                <div class="price-value-wrapper">
+                    <span class="price-num">{{ product.price|floatformat:0 }}</span>
+                    <span class="price-currency">TL</span>
+                </div>
+                <div class="stock-info">
+                    <span class="stock-dot {% if product.stock > 0 %}active{% endif %}"></span>
+                    <span>Stok Durumu: <strong>{{ product.stock }} adet mevcut</strong></span>
+                </div>
+            </div>
+
+            <!-- Satıcı Kartı -->
+            {% if product.seller %}
+            <div class="detail-card seller-card-premium">
+                <h4 class="sidebar-section-title">İlan Sahibi</h4>
+                <div class="seller-profile-row">
+                    <div class="seller-avatar-large">{{ product.seller.username|first|upper }}</div>
+                    <div class="seller-details">
+                        <div class="seller-name">{{ product.seller.username }}</div>
+                        <div class="seller-since">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            Onaylı Hesap
+                        </div>
+                    </div>
+                </div>
+                <div class="seller-stats">
+                    <div class="stat-item">
+                        <div class="val">📍</div>
+                        <div class="lbl">{{ product.get_city_display_name }}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="val">🕒</div>
+                        <div class="lbl">{{ product.created_at|date:"d M Y" }}</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block btn-contact" onclick="alert('Mesajlaşma özelliği yakında eklenecektir!')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    Soru Sor & Mesaj Gönder
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- Güvenlik İpuçları Kartı -->
+            <div class="detail-card safety-tips-card">
+                <h4 class="sidebar-section-title">Güvenli Alışveriş İpuçları</h4>
+                <ul class="safety-tips-list">
+                    <li>Ödemeyi yüz yüze yapmayı tercih edin.</li>
+                    <li>Ürünü teslim almadan kapora göndermeyin.</li>
+                    <li>Güvenliğinden emin olmadığınız linklere tıklamayın.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benzer Ürünler -->
+    {% if similar %}
+    <div class="similar-listings-section">
+        <h3 class="similar-title">Benzer İlanlar</h3>
+        <div class="similar-cards-grid">
+            {% for item in similar %}
+            <a href="{% url 'storeapp:product_detail' item.pk %}" class="similar-card-item">
+                <div class="similar-img-wrapper">
+                    <img src="{{ item.get_image_url }}" alt="{{ item.name }}">
+                </div>
+                <div class="similar-details">
+                    <h4 class="similar-name">{{ item.name|truncatewords:6 }}</h4>
+                    <div class="similar-bottom-row">
+                        <span class="similar-price">{{ item.price|floatformat:0 }} TL</span>
+                        <span class="similar-location">📍 {{ item.get_city_display_name }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

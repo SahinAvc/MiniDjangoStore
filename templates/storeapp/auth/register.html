@@ -1,0 +1,49 @@
+{% extends "storeapp/base_public.html" %}
+
+{% block title %}Üye Ol{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="padding-top: 15px; padding-bottom: 15px;">
+    <div class="auth-card-premium" style="max-width: 460px;">
+        <div class="auth-card-glow"></div>
+        <div class="auth-card-inner">
+            <div class="auth-header">
+                <h2>Hesap Oluştur</h2>
+                <p>Birkaç adımda ücretsiz kayıt olun ve hemen ilan vermeye başlayın.</p>
+            </div>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="auth-input-wrapper">
+                        {% if field.name == 'username' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        {% elif field.name == 'email' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                        {% endif %}
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                        <div class="field-help-text-custom">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="form-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary btn-block btn-auth-submit">Kayıt Ol</button>
+            </form>
+
+            <div class="auth-footer">
+                Zaten üye misiniz? <a href="{% url 'storeapp:login' %}">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

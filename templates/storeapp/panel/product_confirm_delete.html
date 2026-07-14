@@ -1,0 +1,41 @@
+{% extends "storeapp/base_panel.html" %}
+
+{% block title %}İlanı Silmeyi Onayla — Satıcı Paneli{% endblock %}
+
+{% block content %}
+<div class="form-container" style="max-width: 500px;">
+    <div class="breadcrumb" style="margin-bottom: 12px;">
+        <a href="{% url 'storeapp:panel_dashboard' %}">Panelim</a> &rsaquo; İlanı Sil
+    </div>
+
+    <h2 class="page-title">İlanı Sil</h2>
+
+    <div class="panel-card delete-card">
+        <div class="delete-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        
+        <h3>Bu İlanı Silmek İstediğinize Emin misiniz?</h3>
+        
+        <div class="delete-product-details">
+            <div class="delete-product-thumb">
+                <img src="{{ product.get_image_url }}" alt="{{ product.name }}">
+            </div>
+            <div class="delete-product-info">
+                <h4>{{ product.name }}</h4>
+                <p>{{ product.price|floatformat:0 }} TL</p>
+            </div>
+        </div>
+
+        <p class="delete-warning"><strong>Dikkat:</strong> Bu işlem geri alınamaz ve ilan kalıcı olarak silinir.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions" style="justify-content: center; border-top: none; margin-top: 0; padding-top: 0;">
+                <button type="submit" class="btn btn-danger">Evet, Kalıcı Olarak Sil</button>
+                <a href="{% url 'storeapp:panel_dashboard' %}" class="btn btn-outline">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
